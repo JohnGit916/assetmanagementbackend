@@ -296,13 +296,17 @@ def finance_summary():
 @requests_bp.route("/<int:request_id>", methods=["DELETE"])
 @jwt_required()
 def delete_request(request_id):
-    current_user_id = get_jwt_identity()
-    request = Request.query.get_or_404(request_id)
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    request = Request.query.get(request_id)
 
-    # Ensure the user owns the request
-    if request.user_id != current_user_id:
-        return jsonify({"error": "You can only delete your own requests."}), 403
+    if not request:
+        return jsonify({"error": "Request not found"}), 404
+
+    # ✅ Only block if not owner AND not admin/procurement
+    if request.user_id != user.id and user.role not in ["admin", "procurement"]:
+        return jsonify({"error": "Unauthorized"}), 403
 
     db.session.delete(request)
     db.session.commit()
-    return jsonify({"message": "Request deleted successfully."}), 200
+    return jsonify({"message": "Request deleted successfully"}), 200
