@@ -1,11 +1,19 @@
 from flask import Flask
+from flask_cors import CORS  # ✅ Add this line
+
 from .config import Config
 from .extensions import db, jwt, migrate, init_swagger
-from .routes import register_routes  # Clean import for all routes
+from .routes import register_routes
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # ✅ Add CORS configuration
+    CORS(app, supports_credentials=True, origins=[
+        "http://localhost:5173",  # local dev
+        "https://preview--assetwise-bolt.lovable.app"  # Lovable preview
+    ])
 
     # Initialize extensions
     db.init_app(app)
