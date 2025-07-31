@@ -8,8 +8,7 @@ from app.utils.decorators import role_required
 from datetime import datetime, timezone
 from app.models.budget import Budget
 from app.models.asset import Asset
-from app.models.allocation import Allocation
-
+from app.models.allocation import Allocation 
 
 
 
@@ -266,9 +265,7 @@ def admin_summary():
         "assets_in_stock": assets_in_stock,
         "pending_requests": pending_requests
     }), 200
-
-
-
+ 
 
 @requests_bp.route("/summary/finance", methods=["GET"])
 @jwt_required()
@@ -278,16 +275,16 @@ def finance_summary():
     total_budget = budget.total_amount if budget else 0
 
     budget_used = db.session.query(db.func.sum(Request.estimated_cost)).filter(
-        Request.status == "approved"
+        Request.status == RequestStatus.APPROVED.value
     ).scalar() or 0
 
     start_of_month = datetime.now().replace(day=1)
     monthly_spend = db.session.query(db.func.sum(Request.estimated_cost)).filter(
-        Request.status == "approved",
+        Request.status == RequestStatus.APPROVED.value,
         Request.created_at >= start_of_month
     ).scalar() or 0
 
-    pending_approvals = Request.query.filter_by(status="pending").count()
+    pending_approvals = Request.query.filter_by(status=RequestStatus.PENDING.value).count()
 
     return jsonify({
         "total_budget": total_budget,
@@ -295,6 +292,8 @@ def finance_summary():
         "monthly_spend": monthly_spend,
         "pending_approvals": pending_approvals
     }), 200
+
+
 
 @requests_bp.route("/<int:request_id>", methods=["DELETE"])
 @jwt_required()
