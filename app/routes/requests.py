@@ -32,43 +32,42 @@ def submit_request():
     if urgency not in ["LOW", "MEDIUM", "HIGH"]:
         return jsonify({"error": "Invalid urgency level"}), 400
 
+    # Check for required fields based on request type
     if request_type in ["NEW", "REPLACEMENT"]:
         required_fields = ["asset_name", "asset_description", "brand", "category_id", "estimated_cost", "justification", "reason", "urgency"]
-    else:
+    else:  # REPAIR
         required_fields = ["asset_id", "issue_description", "estimated_cost", "justification", "reason", "urgency"]
 
-    if not all(field in data and data[field] for field in required_fields):
+    if not all(field in data and str(data[field]).strip() != "" for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
+
+    # Helper to safely convert to int
+    def parse_int(value):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
 
     new_request = Request(
         user_id=user_id,
         request_type=RequestType[request_type].value,
         urgency=UrgencyLevel[urgency].value,
-        reason=data["reason"],
+        reason=data.get("reason"),
         justification=data.get("justification"),
-        asset_id=data.get("asset_id"),
+        asset_id=parse_int(data.get("asset_id")),
         asset_name=data.get("asset_name"),
         asset_description=data.get("asset_description"),
         brand=data.get("brand"),
         issue_description=data.get("issue_description"),
-        estimated_cost=data.get("estimated_cost"),
-        category_id=data.get("category_id")
+        estimated_cost=parse_int(data.get("estimated_cost")),
+        category_id=parse_int(data.get("category_id"))
     )
 
     db.session.add(new_request)
     db.session.commit()
 
-    # 🔍 Log Activity
-    db.session.add(ActivityLog(
-        user_id=user_id,
-        action="Submitted Request",
-        target_type="Request",
-        target_id=new_request.id,
-        timestamp=datetime.now(timezone.utc)
-    ))
-    db.session.commit()
+    return jsonify({"message": "Request submitted successfully."}), 201
 
-    return jsonify({"message": "Request submitted successfully"}), 201
 
 # ✅ Employee view their own requests
 @requests_bp.route("/my", methods=["GET"])
