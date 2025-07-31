@@ -51,16 +51,21 @@ def view_budgets():
 @jwt_required()
 @role_required("Finance")
 def view_spending():
-    approved_requests = Request.query.filter(Request.status == RequestStatus.APPROVED).all()
-    fulfilled_requests = Request.query.filter(Request.status == RequestStatus.FULFILLED).all()
+    try:
+        approved_requests = Request.query.filter(Request.status == RequestStatus.APPROVED.value).all()
+        fulfilled_requests = Request.query.filter(Request.status == RequestStatus.FULFILLED.value).all()
 
-    summary = {
-        "approved_total": sum([r.estimated_cost or 0 for r in approved_requests]),
-        "fulfilled_total": sum([r.estimated_cost or 0 for r in fulfilled_requests]),
-        "count_approved": len(approved_requests),
-        "count_fulfilled": len(fulfilled_requests)
-    }
-    return jsonify(summary), 200
+        summary = {
+            "approved_total": sum([r.estimated_cost or 0 for r in approved_requests]),
+            "fulfilled_total": sum([r.estimated_cost or 0 for r in fulfilled_requests]),
+            "count_approved": len(approved_requests),
+            "count_fulfilled": len(fulfilled_requests)
+        }
+        return jsonify(summary), 200
+    except Exception as e:
+        print("🔥 ERROR IN /finance/spending:", str(e))
+        return jsonify({"error": str(e)}), 500
+
 
 # ✅ Export requests (CSV)
 @finance_bp.route("/export", methods=["GET"])
