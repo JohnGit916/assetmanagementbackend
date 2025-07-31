@@ -7,6 +7,8 @@ from app.extensions import db
 from app.utils.decorators import role_required
 from datetime import datetime, timezone
 from app.models.budget import Budget
+from app.models.asset import Asset
+
 
 
 requests_bp = Blueprint("requests", __name__)
