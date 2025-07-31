@@ -233,7 +233,7 @@ def format_request(r):
     }
 @requests_bp.route("/dashboard", methods=["GET"])
 @jwt_required()
-@role_required("Employee")
+@role_required("EMPLOYEE")
 def employee_dashboard():
     user_id = get_jwt_identity()
 
