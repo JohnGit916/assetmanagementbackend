@@ -46,14 +46,20 @@ def get_allocations():
     } for a in allocations]), 200
 
 # ✅ View own allocations (Employee)
+# ✅ View own allocations (Employee)
 @allocations_bp.route("/my", methods=["GET"])
 @jwt_required()
 @role_required("Employee")
 def get_my_allocations():
     user_id = get_jwt_identity()
     allocations = Allocation.query.filter_by(user_id=user_id).all()
-    return jsonify([{
-        "id": a.id,
-        "asset_id": a.asset_id,
-        "allocated_at": a.allocated_at.isoformat()
-    } for a in allocations]), 200
+
+    return jsonify([
+        {
+            "id": a.id,
+            "asset_id": a.asset_id,
+            "asset_name": a.asset.name if a.asset else "Unknown",
+            "allocated_at": a.allocated_at.isoformat()
+        } for a in allocations
+    ]), 200
+
