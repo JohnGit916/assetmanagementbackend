@@ -9,7 +9,7 @@ users_bp = Blueprint("users", __name__)
 # ✅ Get all users (Admin only)
 @users_bp.route("/", methods=["GET"])
 @jwt_required()
-@role_required("Admin")
+@role_required("Admin", "Procurement")
 def get_all_users():
     users = User.query.all()
     return jsonify([user.to_dict() for user in users]), 200
