@@ -8,6 +8,8 @@ from app.utils.decorators import role_required
 from datetime import datetime, timezone
 from app.models.budget import Budget
 from app.models.asset import Asset
+from app.models.allocation import Allocation
+
 
 
 
