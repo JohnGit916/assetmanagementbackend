@@ -12,7 +12,7 @@ def create_app():
     # ✅ Add CORS configuration
     CORS(app, supports_credentials=True, origins=[
         "http://localhost:5173",  # local dev
-        "https://preview--supply-chain-lite.lovable.app"  # Lovable preview
+        "https://preview--manage-flow-ui.lovable.app"  # Lovable preview
     ])
 
     # Initialize extensions
